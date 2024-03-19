@@ -1,6 +1,4 @@
-export interface Ikey {
+export interface IActivationData {
   key: string;
   macAddress: string;
-  clientName: string;
-  phoneNumber: string;
 }

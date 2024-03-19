@@ -1,15 +1,17 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { get } from "@vercel/edge-config";
-import { Ikey } from "../types";
+import { IActivationData } from "../types";
 
-const URL =
-  "https://api.vercel.com/v1/edge-config/ecfg_nddxijmb7itjwoksc0bwskuabhq1/items";
+const EDGE_CONFIG_URL = process.env.EDGE_CONFIG_URL as string;
+const AUTH_TOKEN = process.env.AUTH_TOKEN as string;
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   const { key = "", address = "" } = req.query;
 
-  const keys = (await get("keys")) as Ikey[];
-  const providedKeyData = keys.find((data) => data.key === key) as Ikey;
+  const activationData = (await get("activationData")) as IActivationData[];
+  const providedKeyData = activationData.find(
+    (data) => data.key === key
+  ) as IActivationData;
 
   if (!providedKeyData) {
     res.json({
@@ -25,7 +27,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     });
   }
 
-  const isAddressUsed = keys.find((data) => data.macAddress === address);
+  const isAddressUsed = activationData.find(
+    (data) => data.macAddress === address
+  );
   if (isAddressUsed) {
     return res.json({
       message: `Activation failed! MAC address already used !`,
@@ -33,7 +37,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     });
   }
 
-  const updatedKeys = keys.map((data) =>
+  const updatedData = activationData.map((data) =>
     data.key === key ? { ...data, macAddress: address as string } : data
   );
 
@@ -41,17 +45,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     items: [
       {
         operation: "update",
-        key: "keys",
-        value: updatedKeys,
+        key: "activationData",
+        value: updatedData,
       },
     ],
   };
 
   try {
-    const createEdgeConfig = await fetch(URL, {
+    const createEdgeConfig = await fetch(EDGE_CONFIG_URL, {
       method: "PATCH",
       headers: {
-        Authorization: `Bearer 0AAukIqFg380g18ZCGaFEnei`,
+        Authorization: `Bearer ${AUTH_TOKEN}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify(body),

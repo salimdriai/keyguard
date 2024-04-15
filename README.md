@@ -1,6 +1,6 @@
 # Keyguard
 
-Simple Node.js + Vercel edge function for desktop apps remote license activation.
+Simple Vercel edge function for desktop apps remote license activation.
 
 ### Clone and Deploy
 

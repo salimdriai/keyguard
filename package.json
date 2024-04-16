@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@opentelemetry/api": "^1.8.0",
-    "@vercel/edge-config": "^1.1.0"
+    "@vercel/edge-config": "^1.1.0",
+    "zod": "^3.22.4"
   }
 }

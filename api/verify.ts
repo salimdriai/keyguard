@@ -12,11 +12,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     const {
-      data: { key, mac, clientName, phoneNumber },
+      data: { key, hddsn, clientName, phoneNumber },
     } = validation;
 
     const activationData = (await get("activationData")) as IActivationData[];
-    const isAddressUsed = activationData.find((data) => data.mac === mac);
+    const isAddressUsed = activationData.find((data) => data.hddsn === hddsn);
 
     const providedData = activationData.find(
       (data) => data.key === key
@@ -26,12 +26,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(400).json({ message: STATUS_MESSAGE.KEY_NOT_FOUND });
     }
 
-    if (providedData?.mac || isAddressUsed) {
+    if (providedData?.hddsn || isAddressUsed) {
       return res.status(400).json({ message: STATUS_MESSAGE.KEY_USED });
     }
 
     const updatedData: IActivationData[] = activationData.map((data) =>
-      data.key === key ? { ...data, mac, clientName, phoneNumber } : data
+      data.key === key
+        ? {
+            ...data,
+            hddsn,
+            clientName,
+            phoneNumber,
+            activatedAt: new Date().toDateString(),
+          }
+        : data
     );
 
     const result = await updateData(updatedData);

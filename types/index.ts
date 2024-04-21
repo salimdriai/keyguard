@@ -1,6 +1,6 @@
 export interface IActivationData {
   key: string;
-  mac: string;
+  hddsn: string;
   clientName: string;
   phoneNumber: string;
 }
